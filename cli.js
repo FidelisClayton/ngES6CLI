@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 "use strict";
 
 var fs = require('fs');
@@ -5,6 +7,7 @@ var fs = require('fs');
 const command = {};
 
 const args = process.argv;
+const path = process.env.PWD;
 args.splice(0,1);
 args.splice(0,1);
 
@@ -39,7 +42,7 @@ const generateControllerTemplate = (args) => {
         dependencieName = `'${dependencieName}'`;
 
         dependencies.push(dependencieName);
-        instancies.push(instanceName);  
+        instancies.push(instanceName);
 
         setters += `        this.${instanceName} = ${instanceName}; \n`;
 
@@ -48,15 +51,15 @@ const generateControllerTemplate = (args) => {
 
     const controllerTemplate =
 `
-class ${controllerName} {
+class ${controllerName}Controller {
     constructor(${instancies}) {
 ${setters}
     }
 }
 
-${controllerName}.$inject = [${dependencies}];
+${controllerName}Controller.$inject = [${dependencies}];
 
-export default ${controllerName};
+export default ${controllerName}Controller;
 `
 ;
 
@@ -64,7 +67,7 @@ export default ${controllerName};
 };
 
 if(args[0] === 'controller') {
-    fs.writeFile(__dirname + '/' + args[1] + '.js', generateControllerTemplate(args), (err) => {
+    fs.writeFile(path + '/' + (args[1] + '.controller.js').toLowerCase(), generateControllerTemplate(args), (err) => {
         if(err)
             return console.log(err);
 
