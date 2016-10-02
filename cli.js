@@ -2,6 +2,9 @@
 
 "use strict";
 
+const controllerTemplate = require('./templates/controller.template');
+const serviceTemplate = require('./templates/service.template');
+
 var fs = require('fs');
 
 const command = {};
@@ -11,66 +14,24 @@ const path = process.env.PWD;
 args.splice(0,1);
 args.splice(0,1);
 
+switch(args[0]) {
+    case 'controller':
+        fs.writeFile(path + '/' + (args[1] + '.controller.js').toLowerCase(), controllerTemplate(args), (err) => {
+            if(err)
+                return console.log(err);
 
-const generateControllerTemplate = (args) => {
-    let controllerName = '';
-    let dependencies = [];
-    let instancies = [];
-    let setters = ``;
+            console.log(`Controller ${args[1]} created.`);
+        });
 
-    if(!!args[1])
-        controllerName = args[1];
-    else {
-        controllerName = 'Example';
-        throw 'No file name';
-    }
+        break;
 
-    for(var i = 2; i < args.length; i++) {
-        const parts = args[i].split(':');
+    case 'service':
+        fs.writeFile(path + '/' + (args[1] + '.service.js').toLowerCase(), serviceTemplate(args), (err) => {
+            if(err)
+                return console.log(err);
 
-        let instanceName = '';
-        let dependencieName = '';
+            console.log(`Service ${args[1]} created.`);
+        });
 
-        dependencieName = args[i].split(':')[0];
-
-        if(!!parts[1]) {
-            instanceName = parts[1];
-        } else {
-            instanceName = dependencieName;
-        }
-
-        dependencieName = `'${dependencieName}'`;
-
-        dependencies.push(dependencieName);
-        instancies.push(instanceName);
-
-        setters += `        this.${instanceName} = ${instanceName}; \n`;
-
-        console.log(instanceName, dependencieName);
-    }
-
-    const controllerTemplate =
-`
-class ${controllerName}Controller {
-    constructor(${instancies}) {
-${setters}
-    }
-}
-
-${controllerName}Controller.$inject = [${dependencies}];
-
-export default ${controllerName}Controller;
-`
-;
-
-    return controllerTemplate;
-};
-
-if(args[0] === 'controller') {
-    fs.writeFile(path + '/' + (args[1] + '.controller.js').toLowerCase(), generateControllerTemplate(args), (err) => {
-        if(err)
-            return console.log(err);
-
-        console.log("Ok!");
-    });
+        break;
 }
